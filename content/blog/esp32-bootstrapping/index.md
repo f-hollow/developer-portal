@@ -154,7 +154,7 @@ Currently there are two ESP32 ports of MCUboot that can be used in Zephyr RTOS.
 ```mermaid
 flowchart TD
 	ROM .->|load| FP0;
-	BL2 .->|load/map| FP1;
+	BL2 .->|load| FP1;
 	APP .->|load/map| FP1;
 	ROM ==> BL2;
 	subgraph RC ["ROM code"];
@@ -191,31 +191,79 @@ typedef struct esp_image_load_header {
 
 Additional information on the flash and/or SPIRAM regions are provided as a linker symbols and are embedded inside the application image.
 
+
 ## Building
 
-Following is the description of some basic build steps so you can create the images and scenarios discussed in this article at home.
+Before we build some example applications, let’s take a moment to discuss how the linking process utilizes SRAM on the ESP32-S3.
+It’s important to note that different Espressif SoCs can have unique memory layouts, which can affect how resources are allocated. Therefore each SoC is using slightly different linker script.
 
-But first lets talk briefly about how the link process utilize the SRAM memory on the ESP32-S3. Note, that different Espressif SoCs have different memory layout.
 
 ### Memory utilization
 
-Bellow is the image which illustrates how the application linking is done. Highlighted are details of ROM code usage in SRAM1, and I-Cache, D-Cache placement.
-The illustration is covering an single CPU scenario and does not cover the AMP case.
+Following images illustrates how the application linking is done. Highlighted are details of ROM code usage in SRAM. I-Cache and D-Cache allocations are highlighted with red color.
+Important linker symbols are in green bubbles. 
 
-- Yellow hatched area is the memory that can't be rewritten during the 2nd stage loading (it can be re-claimed during the runtime)
-- Orange hatched area is the memory that can be re-claimed after the application loading is done.
-- Red hatched areas are the memory parts that are not available for the user and should be avoided by the linker.
+The images below illustrate the process of application linking, focusing on how the ROM code interacts with SRAM. Key details, such as I-Cache and D-Cache allocations, are highlighted in red for clarity.
+Important linker symbols, crucial to understanding the memory layout, are shown in green bubbles.
+These visuals are designed to make the relationships between different components and memory allocations easier to follow.
+
+
+#### ESP32-S3 use-case
+
+Here we are using the ESP32-S3 as reference platform to illustrate the memory utilization, which is **suitable as an reference for majority of newer SoCs**.
+
+- Yellow area is the memory used by the 2nd stage bootloader and can be re-claimed by the application code run-time.
+- Orange area is the memory used by the 1st stage bootloader (or ROM-loader), that can be re-claimed after the application loading is done.
+- Red area is the memory that is not available for the user and should not be used by the linker to spill the code or data.
+
+The following picture illustrates the memory utilization for an single CPU scenario.
 
 {{< figure
     default=true
-    src="img/esp32s3-zephyr-memory-usage.webp"
+    src="img/esp32s3-zephyr-memory-default.webp"
     alt=""
-    caption="The ESP32-S3 memory utilization."
+    caption="The ESP32-S3 'default' memory utilization."
     >}}
+
+
+The following picture illustrates the memory utilization for a multi CPU scenario.
+
+{{< figure
+    default=true
+    src="img/esp32s3-zephyr-memory-amp.webp"
+    alt=""
+    caption="The ESP32-S3 'AMP' memory utilization."
+    >}}
+
 
 ***NOTE:***
 *The I-Cache allocation SRAM blocks (0,1) are set by the **`PMS_INTERNAL_SRAM_ICACHE_USAGE`** bits
 and the D-Cache allocation SRAM blocks (9,10) are set by the **`PMS_INTERNAL_SRAM_DCACHE_USAGE`** bits, both in the register `PMC_INTERNAL_SRAM_USAGE_1_REG`*
+
+
+#### ESP32 use-case
+
+Here is the memory utilization for the ESP32 platform as its memory model is significantly different from other SoCs in the ESP line.
+
+Following illustration is covering an single CPU scenario.
+
+{{< figure
+    default=true
+    src="img/esp32-zephyr-memory-default.webp"
+    alt=""
+    caption="The ESP32 'default' memory layout."
+    >}}
+
+
+Following picture illustrates the memory utilization in the multi CPU scenario.
+
+{{< figure
+    default=true
+    src="img/esp32-zephyr-memory-amp.webp"
+    alt=""
+    caption="The ESP32-S3 'AMP' memory layout."
+    >}}
+
 
 ### Tooling - esptool.py
 
@@ -347,9 +395,79 @@ I (205) heap_runtime: ESP heap runtime init at 0x3fca4f70 size 273 kB.
 uart:~$
 ```
 
+
 ### MCUboot Espressif port (EP)
 
 To learn how to build the MCUboot Espressif Port, check out this [article](https://docs.mcuboot.com/readme-espressif.html)
+
+
+### AMP enabled sample code
+
+AMP builds require several images to be build and flash into a target SoC. Lets use ESP32-S3 as out test platform and demonstrate the sysbuild capabilities on the sample code that is provided by the Zephyr RTOS sources.
+The sample code uses IPM (Inter-Processor Mailbox) to demonstrate simple two way communication between the PROCPU core and APPCPU core. Images for both CPU cores must be loaded using the MCUboot. Note, there is no support to run AMP while using simple boot mechanism.
+
+```shell
+cd zephyrproject/zephyr
+west build -b esp32s3_devkitm/esp32s3/procpu samples/drivers/ipm/ipm_esp32/ -p --sysbuild
+west flash && west espressif monitor
+```
+
+Three images has been created. Image for the PROCPU is called `ipm_esp32`. Image for the APPCPU is called `ipm_esp32_remote`. Finally MCUboot image (run by PROCPU) is called `mcuboot`.
+
+After flashing and connecting to a target using the serial port you should be able to observe following output on the console.
+```
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x3fcb5400,len:0x2bd8
+load:0x403ba400,len:0xa1fc
+load:0x403c6400,len:0x15c4
+entry 0x403bd044
+I (61) soc_init: MCUboot 2nd stage bootloader
+I (61) soc_init: compile time Dec 12 2024 16:26:23
+W (61) soc_init: Unicore bootloader
+I (61) spi_flash: detected chip: generic
+I (65) spi_flash: flash io: dio
+W (68) spi_flash: Detected size(8192k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+I (80) soc_init: chip revision: v0.1
+I (83) flash_init: Boot SPI Speed : 40MHz
+I (87) flash_init: SPI Mode       : DIO
+I (90) flash_init: SPI Flash Size : 8MB
+I (94) soc_random: Enabling RNG early entropy source
+I (99) soc_random: Disabling RNG early entropy source
+I (103) boot: Disabling glitch detection
+I (107) boot: Jumping to the main image...
+I (145) spi_flash: flash io: dio
+[esp32s3] [INF] Image index: 0, Swap type: none
+[esp32s3] [INF] Loading image 0 - slot 0 from flash, area id: 1
+[esp32s3] [INF] Application start=40378a48h
+[esp32s3] [INF] DRAM segment: paddr=00026ee8h, vaddr=3fc8aec8h, size=010e4h (  4324) load
+[esp32s3] [INF] IRAM segment: paddr=00020040h, vaddr=40374000h, size=06ea8h ( 28328) load
+I (177) boot: DROM segment: paddr=00040000h, vaddr=3c010000h, size=016A0h (  5792) map
+I (177) boot: IROM segment: paddr=00030000h, vaddr=42000000h, size=042A2h ( 17058) map
+I (193) soc_random: Disabling RNG early entropy source
+I (193) boot: Disabling glitch detection
+I (193) boot: Jumping to the main image...
+I (228) heap_runtime: ESP heap runtime init at 0x3fc8f960 size 154 kB.
+
+APPCPU image, area id: 2, offset: 0x170000, hdr.off: 0x20, size: 512 kB
+IRAM segment: paddr=00170040h, vaddr=403a6400h, size=0571ch ( 22300) load
+DRAM segment: paddr=0017575ch, vaddr=3fcbbb20h, size=00a58h (  2648) load
+Application start=403a6924h
+
+*** Booting Zephyr OS build v4.0.0-1981-g5e6b13a7bbff ***
+PRO_CPU is sending a request, waiting remote response...
+PRO_CPU received a message from APP_CPU : APP_CPU uptime ticks 501
+
+PRO_CPU is sending a request, waiting remote response...
+PRO_CPU received a message from APP_CPU : APP_CPU uptime ticks 10503
+
+PRO_CPU is sending a request, waiting remote response...
+PRO_CPU received a message from APP_CPU : APP_CPU uptime ticks 20504
+```
+
 
 ## Feature table
 
