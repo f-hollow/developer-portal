@@ -6,6 +6,8 @@ tags: ["Contribute"]
 
 ---
 
+Some changes to test a new workflow.
+
 For now, the Contribution Guide offers the following materials:
 
 - [Contribution workflow](contrib-workflow "Contribution workflow")
