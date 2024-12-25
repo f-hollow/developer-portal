@@ -82,22 +82,21 @@ jobs:
               );
 
               if (existingComment) {
-                // Update the existing comment
-                await github.rest.issues.updateComment({
+                // Delete the existing comment
+                await github.rest.issues.deleteComment({
                   comment_id: existingComment.id,
                   owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: commentBody
-                });
-              } else {
-                // Create a new comment
-                await github.rest.issues.createComment({
-                  issue_number: ${{ env.PR_NUMBER }},
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: commentBody
+                  repo: context.repo.repo
                 });
               }
+
+              // Create a new comment
+              await github.rest.issues.createComment({
+                issue_number: ${{ env.PR_NUMBER }},
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
             } catch (error) {
               core.setFailed(`Failed to manage PR comment: ${error.message}`);
             }
