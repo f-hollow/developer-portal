@@ -27,6 +27,19 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Append preview snippet to header file
+        run: |
+          PREVIEW_HTML='<p style="color: rgba(var(--color-primary-600), 1); text-align: center;">
+            Preview for
+            <a
+              href="https://github.com/espressif/developer-portal/pull/${{ github.event.pull_request.number }}"
+              style="text-decoration: underline;"
+            >
+              github.com/espressif/developer-portal/pull/${{ github.event.pull_request.number }}
+            </a>
+          </p>'
+          echo "$PREVIEW_HTML" >> layouts/partials/header/basic.html
+
       - name: Build website with Hugo
         env:
           # For maximum backward compatibility with Hugo modules
