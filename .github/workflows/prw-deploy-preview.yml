@@ -41,6 +41,23 @@ jobs:
           echo "PR_NUMBER=$(cat pr-num.txt)" >> $GITHUB_ENV
           echo ${{ env.PR_NUMBER }}
 
+      - name: Download artifacts (PR number file)
+        uses: actions/download-artifact@v4
+        with:
+          name: checksums-ci
+          path: ./
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download checksums-s3.txt
+        run: |
+          aws s3 cp s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt ./checksums-s3.txt || touch ./checksums-s3.txt
+        env:
+          AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Download artifacts (Public folder)
         uses: actions/download-artifact@v4
         with:
@@ -49,17 +66,47 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy to AWS S3 PR-specific subdirectory
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --follow-symlinks --delete --cache-control no-cache
+      - name: Compare checksums and update S3
+        run: |
+          # Find outdated files (unique checksums in checksums-s3.txt)
+          comm -23 checksums-s3.txt checksums-ci.txt | awk '{print $1}' > outdated-files.txt
+          if [ -s outdated-files.txt ]; then
+            echo "Removing outdated files:"
+            cat outdated-files.txt
+            for file in $(cat outdated-files.txt); do
+              aws s3 rm s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/$file
+            done
+          fi
+
+          # Find updated files (unique checksums in checksums-ci.txt)
+          comm -13 checksums-s3.txt checksums-ci.txt | awk '{print $1}' > updated-files.txt
+          if [ -s updated-files.txt ]; then
+            echo "Uploading updated files:"
+            cat updated-files.txt
+            for file in $(cat updated-files.txt); do
+              aws s3 cp public/$file s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/$file --cache-control no-cache
+            done
+          fi
+
+          # Update checksums-uploaded.txt in S3
+          aws s3 cp checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt --cache-control no-cache
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
-          SOURCE_DIR: './public'
-          DEST_DIR: "pr${{ env.PR_NUMBER }}"
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # - name: Deploy to AWS S3 PR-specific subdirectory
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --follow-symlinks --delete --cache-control no-cache
+      #   env:
+      #     AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
+      #     SOURCE_DIR: './public'
+      #     DEST_DIR: "pr${{ env.PR_NUMBER }}"
+      #     AWS_REGION: ${{ secrets.AWS_REGION }}
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Post Preview Link to PR
         uses: actions/github-script@v7
