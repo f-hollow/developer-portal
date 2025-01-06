@@ -127,7 +127,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Compare checksums and update local folder
-        if: env.checksums-exists == 'true'
         run: |
           # Ensure checksums-ci.txt is in the local sync folder
           cp checksums-ci.txt ./local-sync/checksums-s3.txt
