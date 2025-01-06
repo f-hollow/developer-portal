@@ -61,7 +61,8 @@ jobs:
 
       - name: Calculate checksums for website files
         run: |
-          find public/ -type f -exec sha256sum {} + | awk '{print $2, $1}' | sort > checksums-ci.txt
+          cd public
+          find . -type f -exec sha256sum {} + | awk '{print $2, $1}' | sort > ../checksums-ci.txt
 
       - name: Upload checksums to artifacts
         uses: actions/upload-artifact@v4
