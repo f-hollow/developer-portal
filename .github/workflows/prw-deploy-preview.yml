@@ -41,7 +41,22 @@ jobs:
           echo "PR_NUMBER=$(cat pr-num.txt)" >> $GITHUB_ENV
           echo ${{ env.PR_NUMBER }}
 
+      - name: Download checksums-s3.txt from S3 bucket
+        id: download-checksums-s3
+        run: |
+          if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt; then
+            echo "checksums-exists=true" >> $GITHUB_ENV
+          else
+            echo "checksums-exists=false" >> $GITHUB_ENV
+          fi
+        env:
+          AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Download checksums-ci.txt from artifacts
+        if: env.checksums-exists == 'true'
         uses: actions/download-artifact@v4
         with:
           name: checksums-ci
@@ -50,11 +65,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print checksums-ci.txt for inspection
+        if: env.checksums-exists == 'true'
         run: |
           echo "Contents of checksums-ci.txt:"
           cat checksums-ci.txt
 
       - name: Download checksums-s3.txt from S3 bucket
+        if: env.checksums-exists == 'true'
         run: |
           aws s3 cp s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt ./checksums-s3.txt || touch ./checksums-s3.txt
         env:
@@ -64,6 +81,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Print checksums-s3.txt for inspection
+        if: env.checksums-exists == 'true'
         run: |
           echo "Contents of checksums-s3.txt:"
           cat checksums-s3.txt
@@ -80,6 +98,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compare checksums and update local folder
+        if: env.checksums-exists == 'true'
         run: |
           mkdir -p ./local-sync
 
@@ -112,13 +131,27 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Sync local folder with S3 bucket
+      - name: Sync local folder with S3 bucket (local-sync)
+        if: env.checksums-exists == 'true'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --follow-symlinks --delete --cache-control no-cache
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
           SOURCE_DIR: './local-sync'
+          DEST_DIR: "pr${{ env.PR_NUMBER }}"
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Sync public folder with S3 bucket (public)
+        if: env.checksums-exists == 'false'
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete --cache-control no-cache
+        env:
+          AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
+          SOURCE_DIR: './public'
           DEST_DIR: "pr${{ env.PR_NUMBER }}"
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
