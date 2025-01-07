@@ -143,7 +143,6 @@ jobs:
 
   notifications-and-cleanup:
     runs-on: ubuntu-latest
-    needs: [replace-files, update-files]
 
     steps:
       - name: Post Preview Link to PR
