@@ -157,13 +157,13 @@ jobs:
           script: |
             try {
               const { data: comments } = await github.rest.issues.listComments({
-                issue_number: ${{ env.needs.determine-sync-status.outputs.pr-number }},
+                issue_number: ${{ needs.determine-sync-status.outputs.pr-number }},
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
 
               // Define the comment body
-              const commentBody = `🎉 A preview for this PR is available at: ${{ env.HUGO_BASEURL }}pr${{ env.needs.determine-sync-status.outputs.pr-number }}/`;
+              const commentBody = `🎉 A preview for this PR is available at: ${{ env.HUGO_BASEURL }}pr${{ needs.determine-sync-status.outputs.pr-number }}/`;
 
               // Look for an existing comment containing the specific text
               const existingComment = comments.find(comment =>
@@ -181,7 +181,7 @@ jobs:
 
               // Create a new comment
               await github.rest.issues.createComment({
-                issue_number: ${{ env.needs.determine-sync-status.outputs.pr-number }},
+                issue_number: ${{ needs.determine-sync-status.outputs.pr-number }},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: commentBody
