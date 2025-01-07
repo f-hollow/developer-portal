@@ -129,6 +129,7 @@ jobs:
       - name: Copy checksums to local-sync and public folders
         run: |
           # Ensure checksums-ci.txt is in the local sync folder
+          mkdir -p ./local-sync
           cp checksums-ci.txt ./local-sync/checksums-s3.txt
           cp checksums-ci.txt ./public/checksums-s3.txt
         env:
