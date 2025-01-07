@@ -70,6 +70,18 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download checksums-ci.txt from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: checksums-ci
+          path: ./
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy checksums-ci.txt to s3 bucket
+        run: |
+          aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
+
       - name: Sync public folder with S3 bucket (public)
         uses: jakejarvis/s3-sync-action@master
         with:
