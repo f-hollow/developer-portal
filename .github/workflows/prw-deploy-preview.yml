@@ -41,7 +41,7 @@ jobs:
           echo "PR_NUMBER=$(cat pr-num.txt)" >> $GITHUB_ENV
           echo ${{ env.PR_NUMBER }}
 
-      - name: Download checksums-s3.txt from S3 bucket
+      - name: Check if checksums-s3.txt is in S3 bucket
         id: download-checksums-s3
         run: |
           if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt; then
