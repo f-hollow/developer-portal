@@ -143,7 +143,7 @@ jobs:
 
   notifications-and-cleanup:
     runs-on: ubuntu-latest
-    needs: [replace-files, update-files]
+    needs: [determine-sync-status, replace-files, update-files]
     if: |
       always()
       && contains(needs.*.result, 'success')
