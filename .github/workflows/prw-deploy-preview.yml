@@ -45,9 +45,9 @@ jobs:
         id: download-checksums-s3
         run: |
           if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt; then
-            echo "SYNC_STATUS=true" >> $GITHUB_ENV
+            echo "SYNC_STATUS=update" >> $GITHUB_ENV
           else
-            echo "SYNC_STATUS=false" >> $GITHUB_ENV
+            echo "SYNC_STATUS=replace" >> $GITHUB_ENV
           fi
           echo "$SYNC_STATUS"  # Print for debugging
         env:
@@ -57,7 +57,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Download checksums-ci.txt from artifacts
-        if: env.SYNC_STATUS == 'true'
+        if: env.SYNC_STATUS == 'update'
         uses: actions/download-artifact@v4
         with:
           name: checksums-ci
@@ -66,13 +66,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: Print checksums-ci.txt for inspection
-      #   if: env.SYNC_STATUS == 'true'
+      #   if: env.SYNC_STATUS == 'update'
       #   run: |
       #     echo "Contents of checksums-ci.txt:"
       #     cat checksums-ci.txt
 
       - name: Download checksums-s3.txt from S3 bucket
-        if: env.SYNC_STATUS == 'true'
+        if: env.SYNC_STATUS == 'update'
         run: |
           aws s3 cp s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt ./checksums-s3.txt || touch ./checksums-s3.txt
         env:
@@ -82,7 +82,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       # - name: Print checksums-s3.txt for inspection
-      #   if: env.SYNC_STATUS == 'true'
+      #   if: env.SYNC_STATUS == 'update'
       #   run: |
       #     echo "Contents of checksums-s3.txt:"
       #     cat checksums-s3.txt
@@ -96,9 +96,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Compare checksums and update local folder
-        if: env.SYNC_STATUS == 'true'
+        if: env.SYNC_STATUS == 'update'
         run: |
-          mkdir -p ./local-sync
+          mkdir -p ./public-update
 
           # Find outdated files and remove them (unique checksums in checksums-s3.txt)
           comm -23 checksums-s3.txt checksums-ci.txt | awk '{print $1}' > outdated-files.txt
@@ -116,8 +116,8 @@ jobs:
             echo "Copying updated files to local sync folder:"
             cat updated-files.txt
             for file in $(cat updated-files.txt); do
-              mkdir -p ./local-sync/$(dirname "$file")
-              cp ./public/$file ./local-sync/$file
+              mkdir -p ./public-update/$(dirname "$file")
+              cp ./public/$file ./public-update/$file
             done
           fi
         env:
@@ -135,21 +135,21 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Sync local folder with S3 bucket (local-sync)
-        if: env.SYNC_STATUS == 'true'
+      - name: Sync local folder with S3 bucket (public-update)
+        if: env.SYNC_STATUS == 'update'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --follow-symlinks --cache-control no-cache
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
-          SOURCE_DIR: './local-sync'
+          SOURCE_DIR: './public-update'
           DEST_DIR: "pr${{ env.PR_NUMBER }}"
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Sync public folder with S3 bucket (public)
-        if: env.SYNC_STATUS == 'false'
+        if: env.SYNC_STATUS == 'replace'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --follow-symlinks --delete --cache-control no-cache
