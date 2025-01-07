@@ -131,7 +131,7 @@ jobs:
 
       - name: Copy checksums-ci.txt to s3 bucket
         run: |
-          aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt
+          aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
 
       - name: Sync local folder with S3 bucket (public-update)
         uses: jakejarvis/s3-sync-action@master
