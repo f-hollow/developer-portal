@@ -119,7 +119,7 @@ jobs:
             cat updated-files.txt
             for file in $(cat updated-files.txt); do
               mkdir -p ./local-sync/$(dirname "$file")
-              cp $file ./local-sync/$file
+              cp ./public/$file ./local-sync/$file
             done
           fi
         env:
