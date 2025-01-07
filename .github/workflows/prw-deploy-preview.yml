@@ -44,7 +44,7 @@ jobs:
       - name: Check if checksums-s3.txt is in S3 bucket
         id: download-checksums-s3
         run: |
-          if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt; then
+          if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt; then
             checksums_exists=true
           else
             checksums_exists=false
@@ -73,7 +73,7 @@ jobs:
       - name: Download checksums-s3.txt from S3 bucket
         if: env.checksums-exists == 'true'
         run: |
-          aws s3 cp s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt ./checksums-s3.txt || touch ./checksums-s3.txt
+          aws s3 cp s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt ./checksums-s3.txt || touch ./checksums-s3.txt
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
