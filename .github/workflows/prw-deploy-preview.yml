@@ -150,29 +150,20 @@ jobs:
       && !contains(needs.*.result, 'failure')
 
     steps:
-      - name: Debug PR Number
-        run: echo "${{ needs.determine-sync-status.outputs.pr-number }}"
-
       - name: Post Preview Link to PR
         uses: actions/github-script@v7
-        env:
-          HUGO_BASEURL: ${{ env.HUGO_BASEURL }}
-          PR_NUMBER: ${{ needs.determine-sync-status.outputs.pr-number }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
-              const prNumber = process.env.PR_NUMBER;
-              const hugoBaseUrl = process.env.HUGO_BASEURL;
-
               const { data: comments } = await github.rest.issues.listComments({
-                issue_number: prNumber,
+                issue_number: ${{ env.needs.determine-sync-status.outputs.pr-number }},
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
 
               // Define the comment body
-              const commentBody = `🎉 A preview for this PR is available at: ${hugoBaseUrl}pr${prNumber}/`;
+              const commentBody = `🎉 A preview for this PR is available at: ${{ env.HUGO_BASEURL }}pr${{ env.needs.determine-sync-status.outputs.pr-number }}/`;
 
               // Look for an existing comment containing the specific text
               const existingComment = comments.find(comment =>
@@ -190,7 +181,7 @@ jobs:
 
               // Create a new comment
               await github.rest.issues.createComment({
-                issue_number: prNumber,
+                issue_number: ${{ env.needs.determine-sync-status.outputs.pr-number }},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: commentBody
