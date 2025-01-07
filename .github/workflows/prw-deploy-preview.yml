@@ -144,7 +144,7 @@ jobs:
         if: env.checksums-exists == 'true'
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --follow-symlinks --delete --cache-control no-cache
+          args: --follow-symlinks --cache-control no-cache
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
           SOURCE_DIR: './local-sync'
