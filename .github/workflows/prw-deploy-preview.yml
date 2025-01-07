@@ -150,20 +150,24 @@ jobs:
       && !contains(needs.*.result, 'failure')
 
     steps:
+      - name: Debug PR Number
+        run: echo "PR Number: ${{ needs.determine-sync-status.outputs.pr-number }}"
+
       - name: Post Preview Link to PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ needs.determine-sync-status.outputs.pr-number }}
           script: |
             try {
               const { data: comments } = await github.rest.issues.listComments({
-                issue_number: ${{ needs.determine-sync-status.outputs.pr-number }},
+                issue_number: ${{ env.PR_NUMBER }},
                 owner: context.repo.owner,
                 repo: context.repo.repo
               });
 
               // Define the comment body
-              const commentBody = `🎉 A preview for this PR is available at: ${{ env.HUGO_BASEURL }}pr${{ needs.determine-sync-status.outputs.pr-number }}/`;
+              const commentBody = `🎉 A preview for this PR is available at: ${{ env.HUGO_BASEURL }}pr${{ env.PR_NUMBER }}/`;
 
               // Look for an existing comment containing the specific text
               const existingComment = comments.find(comment =>
@@ -181,7 +185,7 @@ jobs:
 
               // Create a new comment
               await github.rest.issues.createComment({
-                issue_number: ${{ needs.determine-sync-status.outputs.pr-number }},
+                issue_number: ${{ env.PR_NUMBER }},
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: commentBody
@@ -189,6 +193,7 @@ jobs:
             } catch (error) {
               core.setFailed(`Failed to manage PR comment: ${error.message}`);
             }
+
 
       - name: Invalidate CloudFront cache for PR
         uses: chetan/invalidate-cloudfront-action@v2
