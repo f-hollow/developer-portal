@@ -45,11 +45,12 @@ jobs:
         id: download-checksums-s3
         run: |
           if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/checksums-s3.txt; then
-            echo "checksums-exists=true" >> $GITHUB_ENV
+            checksums_exists=true
           else
-            echo "checksums-exists=false" >> $GITHUB_ENV
+            checksums_exists=false
           fi
-          echo "checksums-exists=$checksums-exists"
+          echo "checksums-exists=$checksums_exists" >> $GITHUB_ENV
+          echo "checksums-exists=$checksums_exists"  # Print for debugging
         env:
           AWS_S3_BUCKET: ${{ secrets.PREVIEW_AWS_BUCKET_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
