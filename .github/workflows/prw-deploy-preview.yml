@@ -151,7 +151,7 @@ jobs:
 
     steps:
       - name: Debug PR Number
-        run: echo "PR Number: ${{ needs.determine-sync-status.outputs.pr-number }}"
+        run: echo "${{ needs.determine-sync-status.outputs.pr-number }}"
 
       - name: Post Preview Link to PR
         uses: actions/github-script@v7
