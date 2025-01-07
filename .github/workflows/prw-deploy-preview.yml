@@ -126,7 +126,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Compare checksums and update local folder
+      - name: Copy checksums to local-sync and public folders
         run: |
           # Ensure checksums-ci.txt is in the local sync folder
           cp checksums-ci.txt ./local-sync/checksums-s3.txt
