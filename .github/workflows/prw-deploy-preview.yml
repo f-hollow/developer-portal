@@ -45,16 +45,18 @@ jobs:
           echo "PR_NUMBER=$(cat pr-num.txt)" >> $GITHUB_ENV
 
       - name: Check if checksums-s3.txt is in S3 bucket
+        id: check-s3
         run: |
-          if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ env.PR_NUMBER }}/checksums-s3.txt; then
-            echo "status=update" >> $GITHUB_ENV
+          if aws s3 ls s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr$(cat pr-num.txt)/checksums-s3.txt; then
+            echo "::set-output name=status::update"
           else
-            echo "status=replace" >> $GITHUB_ENV
+            echo "::set-output name=status::replace"
           fi
 
       # Output the PR_NUMBER for use in the next job
       outputs:
-        PR_NUMBER: ${{ env.PR_NUMBER }}
+        PR_NUMBER: ${{ steps.read-pr-num.outputs.pr_number }}
+        status: ${{ steps.check-s3.outputs.status }}
 
   replace-files:
     runs-on: ubuntu-latest
