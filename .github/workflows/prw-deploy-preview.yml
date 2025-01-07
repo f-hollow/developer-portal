@@ -37,7 +37,7 @@ jobs:
           name: pr-num
           path: ./
           run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Read PR number from file
         id: read-pr-num
