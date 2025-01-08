@@ -70,13 +70,22 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Sync public folder with S3 bucket (public)
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --follow-symlinks --delete --cache-control no-cache
+# Think how to deduplicate downloading checksums-ci from artifacts and copying to s3 bucket
+
+      # - name: Sync public folder with S3 bucket (public)
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --follow-symlinks --delete --cache-control no-cache
+      #   env:
+      #     SOURCE_DIR: './public'
+      #     DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
+
+      - name: Sync local folder with S3 bucket (public-update)
+        run: |
+          aws s3 sync "$SOURCE_DIR" "$DEST_DIR" --follow-symlinks --delete  --cache-control no-cache
         env:
           SOURCE_DIR: './public'
-          DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
+          DEST_DIR: "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}"
 
       - name: Download checksums-ci.txt from artifacts
         uses: actions/download-artifact@v4
@@ -145,13 +154,24 @@ jobs:
         run: |
           aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
 
+      # - name: Sync local folder with S3 bucket (public-update)
+      #   uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --follow-symlinks --cache-control no-cache
+      #   env:
+      #     SOURCE_DIR: './public-update'
+      #     DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
+
+      # - name: Sync local folder with S3 bucket (public-update)
+      #   run: |
+      #     aws s3 sync ./public-update "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}" --follow-symlinks --cache-control no-cache
+
       - name: Sync local folder with S3 bucket (public-update)
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --follow-symlinks --cache-control no-cache
+        run: |
+          aws s3 sync "$SOURCE_DIR" "$DEST_DIR" --follow-symlinks --cache-control no-cache
         env:
           SOURCE_DIR: './public-update'
-          DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
+          DEST_DIR: "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}"
 
   notifications-and-cleanup:
     runs-on: ubuntu-latest
