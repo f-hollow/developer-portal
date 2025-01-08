@@ -70,17 +70,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-# Think how to deduplicate downloading checksums-ci from artifacts and copying to s3 bucket
-
-      # - name: Sync public folder with S3 bucket (public)
-      #   uses: jakejarvis/s3-sync-action@master
-      #   with:
-      #     args: --follow-symlinks --delete --cache-control no-cache
-      #   env:
-      #     SOURCE_DIR: './public'
-      #     DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
-
-      - name: Sync local folder with S3 bucket (public-update)
+      - name: Sync public folder with S3 bucket
         run: |
           aws s3 sync "$SOURCE_DIR" "$DEST_DIR" --follow-symlinks --delete  --cache-control no-cache
         env:
@@ -125,7 +115,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Compare checksums and update local folder
+      - name: Compare checksums and update public-update folder
         run: |
           mkdir -p ./public-update
 
@@ -135,11 +125,11 @@ jobs:
             echo "Removing outdated files from S3:"
             cat outdated-files.txt
             for file in $(cat outdated-files.txt); do
-              aws s3 rm s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/$file
+              aws s3 rm s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/$file > /dev/null 2>&1
             done
           fi
 
-          # Copy updated files to the local folder (unique checksums in checksums-ci.txt)
+          # Copy updated files to public-update (unique checksums in checksums-ci.txt)
           comm -13 checksums-s3.txt checksums-ci.txt | awk '{print $1}' > updated-files.txt
           if [ -s updated-files.txt ]; then
             echo "Copying updated files to local sync folder:"
@@ -150,28 +140,16 @@ jobs:
             done
           fi
 
-      - name: Copy checksums-ci.txt to s3 bucket
-        run: |
-          aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
-
-      # - name: Sync local folder with S3 bucket (public-update)
-      #   uses: jakejarvis/s3-sync-action@master
-      #   with:
-      #     args: --follow-symlinks --cache-control no-cache
-      #   env:
-      #     SOURCE_DIR: './public-update'
-      #     DEST_DIR: "pr${{ needs.determine-sync-status.outputs.pr-number }}"
-
-      # - name: Sync local folder with S3 bucket (public-update)
-      #   run: |
-      #     aws s3 sync ./public-update "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}" --follow-symlinks --cache-control no-cache
-
-      - name: Sync local folder with S3 bucket (public-update)
+      - name: Sync public-update with S3 bucket
         run: |
           aws s3 sync "$SOURCE_DIR" "$DEST_DIR" --follow-symlinks --cache-control no-cache
         env:
           SOURCE_DIR: './public-update'
           DEST_DIR: "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}"
+
+      - name: Copy checksums-ci.txt to s3 bucket
+        run: |
+          aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
 
       - name: Calculate checksums for S3 bucket files
         run: |
