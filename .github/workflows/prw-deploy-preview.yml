@@ -122,10 +122,11 @@ jobs:
           # Find outdated files and remove them (unique checksums in checksums-s3.txt)
           comm -23 checksums-s3.txt checksums-ci.txt | awk '{print $1}' > outdated-files.txt
           if [ -s outdated-files.txt ]; then
-            echo "Removing outdated files from S3:"
+            echo "Outdated files to be removed from S3:"
             cat outdated-files.txt
+            echo "Removing outdated files from S3:"
             for file in $(cat outdated-files.txt); do
-              aws s3 rm s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/$file > /dev/null 2>&1
+              aws s3 rm s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/$file
             done
           fi
 
