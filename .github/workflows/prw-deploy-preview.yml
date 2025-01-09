@@ -157,7 +157,7 @@ jobs:
           TEMP_DIR=$(mktemp -d)
           aws s3 sync "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}" "$TEMP_DIR" --follow-symlinks
           cd "$TEMP_DIR"
-          find . -type f ! -name "checksums-s3.txt" -exec sha256sum {} + | awk '{print $2, $1}' | sort > "$GITHUB_WORKSPACE/checksums-s3-verify.txt"
+          find . -type f ! -name "checksums-s3.txt" -printf "%P\n" | xargs -d '\n' sha256sum | awk '{print $2, $1}' | sort > "$GITHUB_WORKSPACE/checksums-s3-verify.txt"
 
       - name: Compare checksums of S3 bucket and CI files
         run: |
