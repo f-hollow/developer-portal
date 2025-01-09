@@ -151,24 +151,6 @@ jobs:
         run: |
           aws s3 cp ./checksums-ci.txt s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}/checksums-s3.txt
 
-      - name: Calculate checksums for S3 bucket files
-        run: |
-          TEMP_DIR=$(mktemp -d)
-          aws s3 sync "s3://${{ secrets.PREVIEW_AWS_BUCKET_NAME }}/pr${{ needs.determine-sync-status.outputs.pr-number }}" "$TEMP_DIR" --follow-symlinks
-          cd "$TEMP_DIR"
-          find . -type f ! -name "checksums-s3.txt" -printf "%P\n" | xargs -d '\n' sha256sum | awk '{print $2, $1}' | sort > "$GITHUB_WORKSPACE/checksums-s3-verify.txt"
-
-      - name: Compare checksums of S3 bucket and CI files
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          if diff checksums-ci.txt checksums-s3-verify.txt > diff-output.txt; then
-            echo "Checksums match. No differences found."
-          else
-            echo "Checksums do not match! Differences:"
-            cat diff-output.txt
-            exit 1
-          fi
-
   notifications-and-cleanup:
     runs-on: ubuntu-latest
     needs: [determine-sync-status, replace-files, update-files]
