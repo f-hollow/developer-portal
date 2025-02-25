@@ -1,0 +1,28 @@
+name: Mirror main to GitLab
+on:
+  push:
+    branches:
+      - main
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITLAB_USER_SSH_KEY }}" > ~/.ssh/github-to-gitlab
+          chmod 600 ~/.ssh/github-to-gitlab
+          echo "${{ secrets.GITLAB_HOST_SSH_KEY }}" >> ~/.ssh/known_hosts
+
+      - name: Push to GitLab
+        run: |
+          git remote add gitlab ssh://git@${{ secrets.GITLAB_SERVER_URL }}:${{ secrets.GITLAB_SERVER_PORT }}/kirill.chalov/developer-portal.git
+          git push gitlab main
