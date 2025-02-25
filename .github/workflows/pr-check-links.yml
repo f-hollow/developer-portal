@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  TARGET_REPO_URL: https://github.com/espressif/developer-portal.git
+  TARGET_REPO_URL: https://github.com/f-hollow/developer-portal.git
   TARGET_BRANCH: main
 
 jobs:
