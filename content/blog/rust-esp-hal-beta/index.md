@@ -14,6 +14,8 @@ tags:
 
 ---
 
+test
+
 We're excited to announce the `1.0.0-beta.0` release for `esp-hal`, the _first_ vendor-backed Rust SDK! This has been a nearly 6 year long process to get to this point, and we now feel we have a solid 1.0 strategy.
 
 Let us take you on the journey of how we got here. If you're just interested in what we're stabilizing today, [click here](#targeting-stability) to jump to it.
@@ -108,7 +110,7 @@ As this is a beta release, we'd absolutely love to hear your feedback on esp-hal
 * Please open issues for anything that should be working that isn't
 * Please open discussions to discuss API decisions that perhaps aren't quite as ergonomic or thought through as we intended
 
-We've created our own project generation tool, [esp-generate] to bootstrap starting a project, which is often a bit of a tricky thing to set up in embedded. Please do give it a try by first installing the tool with 
+We've created our own project generation tool, [esp-generate] to bootstrap starting a project, which is often a bit of a tricky thing to set up in embedded. Please do give it a try by first installing the tool with
 
 ```bash
 cargo install esp-generate
@@ -124,7 +126,7 @@ We're currently rewriting the [book], but in the meantime it can still be helpfu
 
 ### Where Does This Leave the Standard Library Port?
 
-At this time we're officially marking the `std` _crates_ as community supported, which we've reflected on the [organization landing page](https://github.com/esp-rs/). We will still maintain the upstream compiler targets, and ensure that those targets continue to function, but `esp-idf-sys`, `esp-idf-hal` and `esp-idf-svc` are now community projects. It's been moving this way for a while, but we'd like to officially announce it here. Users wanting a more stable (and official) development environment should transition to `esp-hal` and the other `no_std` crates. 
+At this time we're officially marking the `std` _crates_ as community supported, which we've reflected on the [organization landing page](https://github.com/esp-rs/). We will still maintain the upstream compiler targets, and ensure that those targets continue to function, but `esp-idf-sys`, `esp-idf-hal` and `esp-idf-svc` are now community projects. It's been moving this way for a while, but we'd like to officially announce it here. Users wanting a more stable (and official) development environment should transition to `esp-hal` and the other `no_std` crates.
 
 ### What’s Next?
 
