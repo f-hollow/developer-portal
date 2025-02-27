@@ -7,7 +7,7 @@ authors:
   - "kirill-chalov"
 ---
 
-This post covers the following:
+This post explores the following:
 
 - [Motives](#motives) for creating the portal
 - [Goals](#goals) to be achieved with the portal
