@@ -18,7 +18,9 @@ We will explore the following topics:
 
 ## Motives
 
-Historically, the community around Espressif's ESP8266 and ESP32 chips played the key role in making Espressif well-known and respected worldwide. Independent enthusiasts popularized our products through the word of mouth, countless projects, and articles on embedded technology blogs.
+Historically, the community around Espressif's ESP8266 and ESP32 chips played the key role in making Espressif well-known and respected worldwide. Independent enthusiasts popularized our products through the word of mouth, countless projects, and articles on embedded technology blogs. [Google.com](https://espressf.com/)
+
+and [Google.com](https://gogl.com).
 
 Owing to these independent enthusiasts, lots of learning materials have been generated and published online. Such materials have been offering a helping hand to those making the first steps with our products and to seasoned developers alike. This, in turn, allowed us to dedicate more resources to developing new products and let the community spread the word.
 
