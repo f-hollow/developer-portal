@@ -1,4 +1,4 @@
-name: Check links in diffs
+name: Check links in diffs (non-blog)
 
 on:
   pull_request:
@@ -48,9 +48,9 @@ jobs:
           args: |
             --dump
             --include-fragments
-            --exclude-path ./themes/
-            --exclude-path ./layouts/
-            .
+            --glob-ignore-case
+            --exclude-path ./content/blog/
+            ./content/
           output: links-baseline.txt
 
       - name: Check out feature branch
@@ -93,9 +93,9 @@ jobs:
           args: |
             --no-progress
             --include-fragments
-            --exclude-path ./themes/
-            --exclude-path ./layouts/
-            .
+            --glob-ignore-case
+            --exclude-path ./content/blog/
+            ./content/
           fail: true  # Fail action if broken links are found
 
       - name: Suggestions
