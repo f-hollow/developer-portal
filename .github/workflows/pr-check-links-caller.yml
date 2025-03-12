@@ -8,7 +8,7 @@ jobs:
   non-blog:
     uses: ./.github/workflows/pr-check-links-reusable.yml
     with:
-      glob_pattern: "--exclude-path content/blog/ ./content/"
+      glob_pattern: "--exclude-path content/blog/ ./content/ README.md"
 
   blog_0-9a-f:
     uses: ./.github/workflows/pr-check-links-reusable.yml
