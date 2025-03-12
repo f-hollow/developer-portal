@@ -1,8 +1,11 @@
-name: Check links in diffs (non-blog)
+name: Check links in diffs reusable
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_call:
+    inputs:
+      glob_pattern:
+        required: true
+        type: string
 
 env:
   TARGET_REPO_URL: https://github.com/f-hollow/developer-portal.git
@@ -49,8 +52,7 @@ jobs:
             --dump
             --include-fragments
             --glob-ignore-case
-            --exclude-path ./content/blog/
-            ./content/
+            ${{ inputs.glob_pattern }}
           output: links-baseline.txt
 
       - name: Check out feature branch
@@ -94,8 +96,7 @@ jobs:
             --no-progress
             --include-fragments
             --glob-ignore-case
-            --exclude-path ./content/blog/
-            ./content/
+            ${{ inputs.glob_pattern }}
           fail: true  # Fail action if broken links are found
 
       - name: Suggestions
