@@ -49,7 +49,8 @@ jobs:
         uses: lycheeverse/lychee-action@v2.0.2
         with:
           args: |
-            --include-fragments --dump
+            --dump
+            --include-fragments
             --glob-ignore-case
             ${{ inputs.glob_pattern }}
           output: links-baseline.txt

@@ -1,16 +1,21 @@
-name: Check links in diffs (non-blog)
+name: Check links in diffs
 
 on:
   pull_request:
     branches: [main]
 
 jobs:
-  batch1:
+  non-blog:
+    uses: ./.github/workflows/pr-check-links-reusable.yml
+    with:
+      glob_pattern: "--exclude-path content/blog/ ./content/"
+
+  blog_0-9a-f:
     uses: ./.github/workflows/pr-check-links-reusable.yml
     with:
       glob_pattern: "./content/blog/[0-9a-f]*/"
 
-  batch2:
+  blog_g-z:
     uses: ./.github/workflows/pr-check-links-reusable.yml
     with:
       glob_pattern: "./content/blog/[g-z]*/"
