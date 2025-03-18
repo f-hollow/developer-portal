@@ -4,7 +4,7 @@ This project stores the files for the [Espressif Developer Portal][] website. Gi
 
 [Espressif Developer Portal]: https://developer.espressif.com/
 
-Here is a sentence to test Vale: wi-fi, SOCs.
+Here is a sentence to test Vale: Wi-Fi, SoCs abnormally.
 
 ## Contribute and render locally
 
