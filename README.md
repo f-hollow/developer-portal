@@ -4,9 +4,9 @@ This project stores the files for the [Espressif Developer Portal][] website. Gi
 
 [Espressif Developer Portal]: https://developer.espressif.com/
 
-Here is a sentence to test Vale: Wi-Fi, SoCs abnormally.
 
-## Contribute and render locally
+
+## The Importance of the ESP-TEE
 
 If you want to contribute to this project, it would be nice to see the rendered version. The website can be easily rendered on your local machine using the following steps:
 
