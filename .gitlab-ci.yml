@@ -163,7 +163,7 @@ sync_merge_to_github:
           --head "$SOURCE_BRANCH" \
           --base main \
           --title "Sync Merge: ${SOURCE_BRANCH}" \
-          --body $'This PR syncs the GitLab branch `'"${SOURCE_BRANCH}"$'` to GitHub.\n\nThe changes have been reviewed internally.' \
+          --body $'This PR syncs the GitLab branch `'"${SOURCE_BRANCH}"$'` to GitHub.\n\nThe changes have been reviewed internally.\n\n> [!NOTE]\n>If you plan to commit changes here directly bypassing GitLab, assign in GitLab MR the label `GitHub-Edit` to prevent accidentally overwriting these changes by GitLab CI sync.' \
           --label "enhancement"
 
         PR_URL=$(gh pr list \
@@ -219,7 +219,8 @@ sync_merge_comment:
 
       # Create varialbes for adding a comment
       COMMENT_IDENTIFIER="🚀 GitHub PR"
-      COMMENT_BODY="🚀 GitHub PR for sync-merging: [#$PR_NUMBER]($PR_URL)"
+      COMMENT_BODY=$'🚀 GitHub PR for sync-merging: [#$PR_NUMBER]($PR_URL).\n\n> [!NOTE]\n>If you plan to commit changes to the respective GitHub PR directly bypassing GitLab, assign here the label \`GitHub-Edit\` to prevent accidentally overwriting the changes on GitHub by GitLab CI sync.'
+
 
     # Reuse the script block
     - *add_comment
