@@ -219,8 +219,7 @@ sync_merge_comment:
 
       # Create varialbes for adding a comment
       COMMENT_IDENTIFIER="🚀 GitHub PR"
-      COMMENT_BODY=$'🚀 GitHub PR for sync-merging: [#$PR_NUMBER]($PR_URL).\n\n> [!NOTE]\n>If you plan to commit changes to the respective GitHub PR directly bypassing GitLab, assign here the label \`GitHub-Edit\` to prevent accidentally overwriting the changes on GitHub by GitLab CI sync.'
-
+      COMMENT_BODY="🚀 GitHub PR for sync-merging: [#$PR_NUMBER]($PR_URL).\\n\\n> [!NOTE]\\n> \\n> If you plan to commit changes to the respective GitHub PR directly bypassing GitLab, assign here the label \`GitHub-Edit\` to prevent accidentally overwriting the changes on GitHub by GitLab CI sync."
 
     # Reuse the script block
     - *add_comment
