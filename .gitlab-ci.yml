@@ -1,3 +1,9 @@
+.comment_template:
+  image: badouralix/curl-jq
+  tags:
+    - deploy_docs
+    - shiny
+
 .add_comment_script: &add_comment_script
   - |
     GITLAB_API="https://${CI_SERVER_HOST}:${CI_SERVER_PORT}/api/v4/projects/${PROJECT_ID}/merge_requests/${MR_ID}/notes"
@@ -25,6 +31,15 @@
       --data "{\"body\": \"$COMMENT_BODY\"}" \
       "$GITLAB_API"
 
+# Define the reusable rule sets
+.default-rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+.label-based-rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /GitHub-Sync-Merge/ && $CI_MERGE_REQUEST_LABELS !~ /GitHub-Edit/'
+
 stages:
   - build
   - deploy
@@ -38,7 +53,7 @@ build_hugo:
   tags:
     - build_docs
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    !reference [.default-rules, rules]
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     NAME: "${CI_COMMIT_REF_SLUG}"
@@ -59,7 +74,7 @@ deploy_preview_hugo:
     - deploy_docs
     - shiny
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    !reference [.default-rules, rules]
   needs: ["build_hugo"]
   variables:
     SSH_KEY: "$DOCS_PREVIEW_PRIVATEKEY" # SSH_KEY used inside espressif/scp
@@ -79,13 +94,10 @@ deploy_preview_hugo:
     - echo "Preview ${SERVER_URL_BASE}/${NAME}"
 
 post_preview_link:
+  extends: .comment_template
   stage: comment_preview
-  image: badouralix/curl-jq
-  tags:
-    - deploy_docs
-    - shiny
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    !reference [.default-rules, rules]
   needs: ["deploy_preview_hugo"]
   variables:
     SERVER_URL_BASE: "$DOCS_PREVIEW_URL_BASE"
@@ -95,10 +107,9 @@ post_preview_link:
   script:
     - |
       # Create varialbes for adding a comment
-      COMMENT_IDENTIFIER="🎉 Preview for this MR"
-
-      PREVIEW_LINK="${SERVER_URL_BASE}/${NAME}"
-      COMMENT_BODY="🎉 Preview for this MR: ${PREVIEW_LINK}"
+      export COMMENT_IDENTIFIER="🎉 Preview for this MR"
+      export PREVIEW_LINK="${SERVER_URL_BASE}/${NAME}"
+      export COMMENT_BODY="🎉 Preview for this MR: ${PREVIEW_LINK}"
 
     - *add_comment_script
 
@@ -115,7 +126,7 @@ sync_merge_to_github:
     - deploy_docs
     - shiny
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /GitHub-Sync-Merge/ && $CI_MERGE_REQUEST_LABELS !~ /GitHub-Edit/'
+    !reference [.label-based-rules, rules]
   variables:
     GITHUB_REPO: "f-hollow/developer-portal"
   script:
@@ -193,13 +204,10 @@ sync_merge_to_github:
     expire_in: 1 hour
 
 sync_merge_comment:
+  extends: .comment_template
   stage: comment_github_pr
-  image: badouralix/curl-jq
-  tags:
-    - deploy_docs
-    - shiny
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /GitHub-Sync-Merge/ && $CI_MERGE_REQUEST_LABELS !~ /GitHub-Edit/'
+    !reference [.label-based-rules, rules]
   needs:
     - sync_merge_to_github
   variables:
