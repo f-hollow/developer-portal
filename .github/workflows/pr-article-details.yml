@@ -41,6 +41,12 @@ jobs:
             fi
           done < temp/added-files.txt
 
+          echo "List of added index files:"
+          cat temp/index.txt
+
+          echo "List of folders of added files:"
+          cat temp/folders.txt
+
       - name: Validate year and month folder
         run: |
           if [ -f temp/folders.txt ]; then
