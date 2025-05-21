@@ -132,7 +132,7 @@ jobs:
             echo
             echo "Article: $article_key"
 
-            # Skip if folder year or month is empty
+            # Report if folder year or month is empty and skip
             if ! [[ "$folder_ym" =~ $YM_REGEX ]]; then
               echo "❌ Wrong folder."
               echo "   Move the article to a present or future 'content/blog/YYYY/MM/' folder and add a matching publishing date in the article's YAML header."
@@ -140,6 +140,7 @@ jobs:
               continue
             fi
 
+            # Report if article date format is invalid and skip
             if [[ ! "$article_date" =~ $DATE_REGEX ]]; then
               echo "❌ Invalid date format in the article's YAML header: $article_date."
               echo "   Use YYYY-MM-DD."
@@ -147,6 +148,18 @@ jobs:
               continue
             fi
 
+            # Check article details against this decision tree
+            #
+            # Is folder_ym = current_ym?
+            # ├── Yes → Is article_date < current_date?
+            # │   ├── Yes → Warn: article date is in the past
+            # │   └── No → OK
+            # └── No → Is folder_ym > current_ym?
+            #     ├── Yes → Is folder_ym != article_ym?
+            #     │   ├── Yes → Warn: Make folder_ym and article_date consistent
+            #     │   └── No  → OK
+            #     └── No  → Warn: folder_year and folder_month are in the past
+            #
             if [ "$folder_ym" = "$current_ym" ]; then
               if [ "$article_date" \< "$current_date" ]; then
                 echo "❌ Publishing date in the article's YAML header is in the past: $article_date."
@@ -165,6 +178,7 @@ jobs:
               article_error=1
             fi
 
+            # Report if article summary is not provided
             if [ -z "$article_summary" ]; then
               echo "❌ Missing summary."
               echo "   Add the summary in the article's YAML header:"
