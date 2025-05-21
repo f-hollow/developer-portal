@@ -43,7 +43,11 @@ default:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /GitHub-Sync-Merge/ && $CI_MERGE_REQUEST_LABELS !~ /GitHub-Edit/'
 
+include:
+  - local: '.gitlab/ci/check_article_details.yml'
+
 stages:
+  - check_article
   - build
   - deploy
   - comment_preview
