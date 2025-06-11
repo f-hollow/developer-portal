@@ -1,6 +1,6 @@
 ---
 title: "Test Double Quotes"
-date: "2025-06-10"
+date: "10 Jun 2025"
 showAuthor: false
 # Add a summary
 summary: "Replace it with a brief Espressif's summary."
