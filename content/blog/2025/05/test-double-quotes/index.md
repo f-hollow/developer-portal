@@ -3,7 +3,7 @@ title: "Test Double Quotes"
 date: "2025-06-10"
 showAuthor: false
 # Add a summary
-summary: "Replace it with a brief summary that capture the essence of (1) what the article is about and (2) how the reader will benefit from reading it. For examples, check other article summaries."
+summary: "Replace it with a brief Espressif's summary."
 # Create your author entry
 #  - Create your page at `content/authors/<author-name>/_index.md`
 #  - Add your personal data at `data/authors/<author-name>.json`

@@ -1,9 +1,9 @@
 ---
 title: "Test Single Quotes"
-date: '2025-06-10'
+date: '2025-06-10T1234'
 showAuthor: false
 # Add a summary
-summary: 'Replace it with a brief summary.'
+summary: 'Replace it with a "brief" summary.'
 # Create your author entry
 #  - Create your page at `content/authors/<author-name>/_index.md`
 #  - Add your personal data at `data/authors/<author-name>.json`
