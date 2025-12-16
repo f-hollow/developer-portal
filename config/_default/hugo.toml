@@ -19,6 +19,16 @@ summaryLength = 0
 buildDrafts = true
 buildFuture = true
 
+[deployment]
+  dryRun = true
+  #maxDeletes = 256
+  [[deployment.targets]]
+    name = "preview"
+    URL = "s3://developer-portal-preview?region=ap-east-1"
+    exclude = "^(?!persist/).+"
+    [[deployment.matchers]]
+
+
 [pagination]
   pagerSize = 30
 
