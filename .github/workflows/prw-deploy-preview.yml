@@ -1,7 +1,3 @@
-# Add include matchers pattern?
-# Invalidate cache?
-# Use dry run for testing
-
 name: Deploy preview for PR
 
 on:
@@ -44,6 +40,11 @@ jobs:
           echo "PR_NUMBER=$(cat pr-num.txt)" >> $GITHUB_ENV
         #   echo ${{ env.PR_NUMBER }}
 
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Download artifacts (Public folder)
         uses: actions/download-artifact@v4
         with:
@@ -56,8 +57,21 @@ jobs:
         env:
           HUGO_VERSION: 0.152.2
         run: |
-          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_withdeploy_${HUGO_VERSION}_linux-amd64.deb \
+          wget --progress=dot:giga -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_withdeploy_${HUGO_VERSION}_linux-amd64.deb \
           && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
+      - name: Rewrite and verify Hugo deployment URL for PR
+        run: |
+          # Rewrite the prefix in hugo.toml
+          sed -i "s|prefix=subdir/|prefix=pr${{ env.PR_NUMBER }}/|g" config/_default/hugo.toml
+
+          # Verify that the replacement occurred
+          if grep -q "prefix=subdir/" config/_default/hugo.toml; then
+            echo "ERROR: Hugo deployment prefix was not rewritten"
+            echo "Expected: prefix=pr${{ env.PR_NUMBER }}/"
+            echo "Found:    prefix=subdir/"
+            exit 1
+          fi
 
       - name: Deploy preview with Hugo
         env:
@@ -65,11 +79,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          HUGO_BASEURL: ${{ env.HUGO_BASEURL }}pr${{ env.PR_NUMBER }}/
         run: |
           hugo deploy \
-            --target preview \
-            --destination pr${{ env.PR_NUMBER }}
+            --target=preview
 
       - name: Post Preview Link to PR
         uses: actions/github-script@v7

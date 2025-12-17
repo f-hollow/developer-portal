@@ -20,14 +20,10 @@ buildDrafts = true
 buildFuture = true
 
 [deployment]
-  dryRun = true
-  #maxDeletes = 256
   [[deployment.targets]]
-    name = "preview"
-    URL = "s3://developer-portal-preview?region=ap-east-1"
-    exclude = "^(?!persist/).+"
-    [[deployment.matchers]]
-
+    name = 'preview'
+    url = 's3://developer-portal-preview?region=ap-east-1&prefix=subdir/'
+    exclude = "persist/**"
 
 [pagination]
   pagerSize = 30
