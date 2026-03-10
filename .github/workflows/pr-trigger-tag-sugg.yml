@@ -1,0 +1,33 @@
+name: Trigger tag suggestions
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-tag-suggestions:
+    if: github.event.label.name == 'suggest-tags'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Collect PR metadata
+        run: |
+          echo "${{ github.event.pull_request.number }}" > pr_num.txt
+          echo "${{ github.event.pull_request.html_url }}" > pr_url.txt
+          echo "${{ github.event.pull_request.head.ref }}" > pr_head_ref.txt
+          echo "${{ github.event.pull_request.head.sha }}" > pr_head_sha.txt
+          echo "${{ github.event.label.name }}" > pr_label.txt
+
+      - name: Upload PR metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-tag-suggestions-metadata
+          path: |
+            pr_num.txt
+            pr_url.txt
+            pr_head_ref.txt
+            pr_head_sha.txt
+            pr_label.txt

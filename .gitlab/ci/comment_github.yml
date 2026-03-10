@@ -2,7 +2,7 @@ comment_github:
   extends: .comment_template
   stage: comment_github
   rules:
-    !reference [.label-based-rules, rules]
+    !reference [.github-sync-merge-rules, rules]
   needs:
     - sync_github
   variables:

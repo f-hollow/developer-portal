@@ -4,7 +4,7 @@ check_article_details:
   tags:
     - build_docs
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /Suggest-Tags/'
       changes:
         - content/blog/**/*
         - content/workshops/**/*

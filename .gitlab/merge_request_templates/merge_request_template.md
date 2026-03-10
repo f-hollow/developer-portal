@@ -14,7 +14,6 @@
 -->
 
 
-
 ## Publish date
 
 Expected publish date: `YYYY-MM-DD`
@@ -26,6 +25,14 @@ Please note the expected review time:
   - Tutorial or workshops: 3-4 weeks
 -->
 
+
+## Actions
+
+- Get automatic tag suggestions for your article:
+  - In your MR, add the label `Suggest-Tags`
+  - On the `Pipelines` tab, press the `Run pipeline` button
+
+
 ## Review process
 
 - [ ] Initiate **technical review**
@@ -33,6 +40,7 @@ Please note the expected review time:
     - Add subject matter experts (your team members, experts in the field)
 - [ ] Once tech review mostly done, initiate **editorial review**
     - Add technical editors (`@kirill.chalov`, `@francesco.bez`, and/or `@pedro.minatel`)
+
 
 ## Checks
 
@@ -62,6 +70,7 @@ Please note the expected review time:
     - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format
     - Your feature branch is rebased on `main`
 
+
 ## 🔗 Related
 
 <!--
@@ -69,7 +78,6 @@ Please note the expected review time:
 - Related !MRNUMBER
 - Links to related documentation
 -->
-
 
 
 ## 🧪 Testing (Hugo)
