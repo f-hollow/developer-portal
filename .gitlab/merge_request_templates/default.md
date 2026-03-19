@@ -89,3 +89,6 @@ Describe how you tested or verified your contribution. For example, you can say:
 - [ ] I have checked the rendered output on Desktop and Mobile view.
 - [ ] I have verified that internal links and syntax highlighting work correctly.
 -->
+
+<!-- Don't remove the next line - assigns the MR author as the assignee -->
+/assign me
