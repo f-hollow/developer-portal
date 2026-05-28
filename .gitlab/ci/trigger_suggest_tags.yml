@@ -1,0 +1,8 @@
+trigger_suggest_tags:
+  stage: trigger
+  rules:
+    !reference [.suggest-tags-rules, rules]
+  trigger:
+    include:
+      - local: '.gitlab/ci/suggest_tags.yml'
+    strategy: depend

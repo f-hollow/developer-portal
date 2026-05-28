@@ -38,8 +38,12 @@ default:
 # Define the reusable rule sets
 .default-rules:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /Suggest-Tags/'
 
-.label-based-rules:
+.github-sync-merge-rules:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /GitHub-Sync-Merge/ && $CI_MERGE_REQUEST_LABELS !~ /GitHub-Edit/'
+
+.suggest-tags-rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS =~ /Suggest-Tags/'

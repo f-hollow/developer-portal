@@ -5,7 +5,7 @@ check_repo_consistency:
     - deploy_docs
     - shiny
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    !reference [.default-rules, rules]
   before_script:
     - apt-get update && apt-get install -y git
   script:

@@ -5,7 +5,7 @@ sync_github:
     - deploy_docs
     - shiny
   rules:
-    !reference [.label-based-rules, rules]
+    !reference [.github-sync-merge-rules, rules]
   variables:
     GITHUB_REPO: "espressif/developer-portal"
   script:
