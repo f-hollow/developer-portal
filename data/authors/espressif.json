@@ -1,7 +1,7 @@
 {
     "name": "John Lee",
-    "type": "espressif",
-    "image" : "img/authors/espressif.webp",
+    "type": "community",
+    "image" : "img/authors/community-light.webp",
     "bio": "Espressif Systems",
     "social": [
         { "linkedin": "https://www.linkedin.com/company/espressif-systems" },
