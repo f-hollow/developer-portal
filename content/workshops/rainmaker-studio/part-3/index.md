@@ -3,6 +3,7 @@ title: "Part 3 — Build, Flash, and Test"
 date: "2026-07-08"
 series: ["WSRMS"]
 series_order: 3
+featureAsset: "img/featured/background.webp"
 showAuthor: false
 authors:
   - "ivan-theng"

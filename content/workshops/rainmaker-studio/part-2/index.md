@@ -3,6 +3,7 @@ title: "Part 2 — Implement the Driver Functions"
 date: "2026-07-08"
 series: ["WSRMS"]
 series_order: 2
+featureAsset: "img/featured/background.webp"
 showAuthor: false
 authors:
   - "ivan-theng"

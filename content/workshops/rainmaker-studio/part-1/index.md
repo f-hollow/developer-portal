@@ -3,6 +3,7 @@ title: "Part 1 — Build Your Data Model in Studio"
 date: "2026-07-08"
 series: ["WSRMS"]
 series_order: 1
+featureAsset: "img/featured/background.webp"
 authors:
   - "ivan-theng"
 summary: "Open ESP RainMaker Studio, create a Rainbow LED project, add a custom device with Power, Brightness, and Cycle Speed parameters, and download the generated ESP-IDF project."
