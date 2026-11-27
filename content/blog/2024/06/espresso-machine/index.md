@@ -16,6 +16,8 @@ aliases:
 Over 2.25 billion cups of coffee are consumed in the world daily [1]. For some people, coffee is part of their daily routine and is just a way to kick things off for a busy day. For others, it is a bit more than this, and can be a tasty source of pleasure at break time. Yet there are also the coffee aficionados, who are notorious for engaging in extensive discussions online regarding the best preparation practices and the complicated
 physics behind coffee extraction.
 
+Another paragraph.
+
 Being a (sort of) aficionado myself, I have been puzzled by my experience when using my ~~dirty~~ cheap espresso machine at home and noticing how inconsistently I was able to produce a good cup. Sometimes it tasted really delicious, others quite underwhelming and bland. With the same coffee beans and setup, of course.
 
 After some research and observation it became clear to me that one of the main issues is what is called channeling. Channeling is the natural tendency of water to flow through the path of least resistance of a coffee puck (this applies to unpressurized coffee baskets, so please check reference [2] if you are unfamiliar with the term). Much like an electrical current will flow proportionally more through the path of least resistance in a circuit, water will do the same in any physical setting. If during preparation coffee isn’t properly distributed and tamped, channeling is very likely to happen.
