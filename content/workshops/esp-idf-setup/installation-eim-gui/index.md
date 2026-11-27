@@ -18,6 +18,7 @@ If the tab doesn't show up, open the _Command Palette_ (`F1`) and type
 ```
 {{< /alert >}}
 
+Added a new paragraph.
 
 ### Installation via EIM
 
